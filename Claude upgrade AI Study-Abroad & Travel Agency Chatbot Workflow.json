@@ -1,0 +1,1439 @@
+{
+  "name": "AI Travel & Study-Abroad Agency Chatbot",
+  "nodes": [
+    {
+      "id": "6007a735-898e-40b0-8baf-792fde8caf02",
+      "name": "START — Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1400,
+        400
+      ],
+      "parameters": {
+        "public": true,
+        "mode": "hostedChat",
+        "options": {
+          "responseMode": "lastNode",
+          "title": "Agency Assistant",
+          "subtitle": "Ask about countries, universities, scholarships, or book a consultation",
+          "inputPlaceholder": "Type in English, Bangla, or Banglish...",
+          "loadPreviousSession": "memory"
+        }
+      }
+    },
+    {
+      "id": "525410a6-009b-431e-892d-1b597d35e0dd",
+      "name": "CONFIG - Agency Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1140,
+        400
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "01dbebcd-9b83-4c2d-b16b-43a231ee7a4f",
+              "name": "agency_name",
+              "type": "string",
+              "value": "Your Agency Name"
+            },
+            {
+              "id": "f506d3f0-284a-4f28-882f-ee310894b0d6",
+              "name": "agency_email",
+              "type": "string",
+              "value": "info@youragency.com"
+            },
+            {
+              "id": "7cf36ad4-61a3-4d38-93d6-5e63540c78d3",
+              "name": "admin_email",
+              "type": "string",
+              "value": "admin@youragency.com"
+            },
+            {
+              "id": "77a10a81-2b33-46af-9ba5-16f097cb21f8",
+              "name": "timezone",
+              "type": "string",
+              "value": "Asia/Dhaka"
+            },
+            {
+              "id": "84ff9eff-47fb-4dd5-b2a2-ebb7f4811447",
+              "name": "default_language",
+              "type": "string",
+              "value": "auto"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ff0fdb13-a885-4f08-a9d3-cf2f2082cf03",
+      "name": "MODEL — OpenAI GPT-5.4-mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -900,
+        760
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.4-mini",
+          "cachedResultName": "gpt-5.4-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "65351f60-1e6e-4421-9b59-40dcd502536e",
+      "name": "MEMORY — Conversation Buffer",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -720,
+        760
+      ],
+      "parameters": {
+        "sessionIdType": "fromInput",
+        "contextWindowLength": 15
+      }
+    },
+    {
+      "id": "7c390ce9-ea3c-415d-9bb4-cfffceb8dc3a",
+      "name": "TOOL — Country Master Search",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -460,
+        560
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Your Country Master spreadsheet"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Country Master tab"
+        },
+        "filtersUI": {},
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "aaa33df3-5b15-4858-a9d5-669cca2a37fa",
+      "name": "TOOL — University Database Search",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -240,
+        560
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Your University Database spreadsheet (or same as Country Master)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: University Database tab"
+        },
+        "filtersUI": {},
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "afcceeaa-7ef0-4cfd-92e3-6106a33c66be",
+      "name": "TOOL — Scholarship Database Search",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -20,
+        560
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Your Scholarship Database spreadsheet (or same as Country Master)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Scholarship Database tab"
+        },
+        "filtersUI": {},
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "662f7fe3-338d-4f76-a737-7af4f8ca8c73",
+      "name": "TOOL — Appointment Availability Search",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        200,
+        560
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Your Appointment spreadsheet"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Appointments tab"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "AVAILABLE"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "20a72652-5c26-45de-8e90-1ef9eb5c121c",
+      "name": "TOOL — Appointment Booking (Update Slot)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        420,
+        560
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Your Appointment spreadsheet (same as availability search)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Appointments tab"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Date",
+            "Time",
+            "Consultant"
+          ],
+          "value": {
+            "Date": "={{ $fromAI('booking_date', 'Exact date of the slot being booked, matching the Date column value exactly, e.g. 2026-08-25', 'string') }}",
+            "Time": "={{ $fromAI('booking_time', 'Exact time of the slot being booked, matching the Time column value exactly, e.g. 14:30', 'string') }}",
+            "Consultant": "={{ $fromAI('consultant', 'Name of the consultant for this slot, matching the Consultant column value exactly', 'string') }}",
+            "Status": "BOOKED",
+            "Customer Name": "={{ $fromAI('customer_name', 'Full name of the customer booking the appointment', 'string') }}",
+            "Customer Phone": "={{ $fromAI('customer_phone', 'Phone number of the customer', 'string') }}",
+            "Customer Email": "={{ $fromAI('customer_email', 'Email address of the customer if provided', 'string') }}",
+            "Purpose": "={{ $fromAI('purpose', 'Short reason for the appointment, e.g. Germany Masters consultation', 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Consultant",
+              "displayName": "Consultant",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Phone",
+              "displayName": "Customer Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Purpose",
+              "displayName": "Purpose",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "4ea6da07-4514-4388-99cf-c1e39e7765ac",
+      "name": "TOOL — Lead Database Save/Update",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        640,
+        560
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Your Lead Database spreadsheet"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Leads tab"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "phone"
+          ],
+          "value": {
+            "lead_id": "={{ $fromAI('lead_id', 'A stable identifier for this lead, reuse the same value across the conversation, e.g. the phone number', 'string') }}",
+            "timestamp": "={{ $now.toISO() }}",
+            "name": "={{ $fromAI('name', 'Full name of the customer, if known', 'string') }}",
+            "phone": "={{ $fromAI('phone', 'Phone number of the customer, required to identify the lead', 'string') }}",
+            "email": "={{ $fromAI('email', 'Email address of the customer, if known', 'string') }}",
+            "interested_country": "={{ $fromAI('interested_country', 'Country the customer is interested in studying or traveling to', 'string') }}",
+            "interested_university": "={{ $fromAI('interested_university', 'University the customer is interested in, if mentioned', 'string') }}",
+            "degree_level": "={{ $fromAI('degree_level', 'Bachelor, Master, PhD, or other degree level', 'string') }}",
+            "program": "={{ $fromAI('program', 'Field of study or program name', 'string') }}",
+            "education": "={{ $fromAI('education', 'Customer academic background, e.g. BSc in CSE', 'string') }}",
+            "gpa": "={{ $fromAI('gpa', 'GPA or academic result, if provided', 'string') }}",
+            "ielts": "={{ $fromAI('ielts', 'IELTS score or English proficiency status, if provided', 'string') }}",
+            "budget": "={{ $fromAI('budget', 'Approximate budget mentioned by the customer', 'string') }}",
+            "preferred_intake": "={{ $fromAI('preferred_intake', 'Preferred intake session, e.g. Fall 2026', 'string') }}",
+            "scholarship_interest": "={{ $fromAI('scholarship_interest', 'Yes or No, whether the customer is interested in scholarships', 'string') }}",
+            "lead_source": "AI Chatbot",
+            "conversation_summary": "={{ $fromAI('conversation_summary', 'A brief 1-2 sentence summary of what the customer wants', 'string') }}",
+            "lead_score": "={{ $fromAI('lead_score', 'Numeric lead score from 0 to 9 calculated using the scoring rules in the system prompt', 'number') }}",
+            "lead_temperature": "={{ $fromAI('lead_temperature', 'COLD, WARM, or HOT based on the lead score', 'string') }}",
+            "lead_status": "={{ $fromAI('lead_status', 'Current status, e.g. New, Qualified, Appointment Booked, Needs Follow-up', 'string') }}",
+            "next_action": "={{ $fromAI('next_action', 'The next recommended action for staff, e.g. Call to confirm documents', 'string') }}",
+            "appointment_date": "={{ $fromAI('appointment_date', 'Booked appointment date, if any, otherwise leave blank', 'string') }}",
+            "appointment_time": "={{ $fromAI('appointment_time', 'Booked appointment time, if any, otherwise leave blank', 'string') }}",
+            "next_follow_up_date": "={{ $fromAI('next_follow_up_date', 'Suggested follow-up date if the customer did not book, otherwise leave blank', 'string') }}",
+            "follow_up_status": "={{ $fromAI('follow_up_status', 'Pending, Not Needed, or Completed', 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "interested_country",
+              "displayName": "interested_country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "interested_university",
+              "displayName": "interested_university",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "degree_level",
+              "displayName": "degree_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "program",
+              "displayName": "program",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "education",
+              "displayName": "education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gpa",
+              "displayName": "gpa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ielts",
+              "displayName": "ielts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "budget",
+              "displayName": "budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "preferred_intake",
+              "displayName": "preferred_intake",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "scholarship_interest",
+              "displayName": "scholarship_interest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_source",
+              "displayName": "lead_source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "conversation_summary",
+              "displayName": "conversation_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_score",
+              "displayName": "lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_temperature",
+              "displayName": "lead_temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_status",
+              "displayName": "lead_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_date",
+              "displayName": "appointment_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "next_follow_up_date",
+              "displayName": "next_follow_up_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "follow_up_status",
+              "displayName": "follow_up_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "c5acae36-212e-4859-b22c-5d825159c61b",
+      "name": "TOOL — Staff Notification Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        860,
+        560
+      ],
+      "parameters": {
+        "fromEmail": "={{ $('CONFIG - Agency Settings').item.json.agency_email }}",
+        "toEmail": "={{ $('CONFIG - Agency Settings').item.json.admin_email }}",
+        "subject": "={{ $fromAI('email_subject', 'Short subject line for this staff notification, e.g. New Lead: Germany Masters Inquiry, or Appointment Booked: 25 Aug 2:30 PM', 'string') }}",
+        "emailFormat": "text",
+        "text": "={{ $fromAI('email_body', 'Full plain-text notification for agency staff. Include whatever is relevant: customer name, phone, email, country, university, degree, program, budget, intake, lead score, lead temperature, lead status, appointment date/time if applicable, and a short conversation summary.', 'string') }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "id": "7981077d-4287-476f-bed1-f125a3b3c46a",
+      "name": "AI — Receptionist Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -880,
+        400
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "You are the AI receptionist and study-abroad/travel consultant for {{ $('CONFIG - Agency Settings').item.json.agency_name }}, a Bangladeshi consultancy agency. The agency's timezone is {{ $('CONFIG - Agency Settings').item.json.timezone }}.\n\nYOUR ROLE\nYou act as: AI receptionist, study-abroad consultant, travel information assistant, country/university/scholarship information assistant, cost/budget assistant, lead qualification assistant, human handoff receptionist, appointment scheduler, customer information collector, and follow-up assistant.\n\nLANGUAGE\nUnderstand English, Bangla, and Banglish. Always reply in the same language/style the customer just used. Keep normal replies concise; give detailed explanations only when asked.\n\nSOURCE OF TRUTH — NEVER FABRICATE\nFor any question about countries, universities, tuition, living costs, visas, scholarships, admission requirements, deadlines, or similar, you MUST call the relevant search tool (Country Master Search, University Database Search, Scholarship Database Search) and answer only from what those tools return. If the tools return nothing relevant, say honestly that verified information is not currently available in the database and offer to arrange a consultation with an advisor. NEVER invent countries, universities, fees, scholarships, visa rules, or deadlines.\n\nCONVERSATION MEMORY\nRemember everything the customer has already told you in this conversation (name, country, budget, degree, program, etc.). Never ask for the same information twice. Ask only the questions you still need, and only one or two at a time — never a long list.\n\nLEAD QUALIFICATION\nAs the conversation develops, naturally collect: full name, phone, email, interested country, interested university, degree level, program, education background, GPA, IELTS status, budget, preferred intake, and scholarship interest. Do not interrogate the customer — collect this gradually as it comes up naturally.\n\nCalculate a simple lead score by adding 1 point each for: budget provided, country selected, degree selected, program selected, intake selected, academic info provided, IELTS info provided, phone provided; add 2 points if the customer asked for a consultation. Classify 0-3 as COLD, 4-6 as WARM, 7+ as HOT. Never infer sensitive personal characteristics (wealth, ethnicity, religion, etc.) — only use what the customer explicitly said.\n\nWhenever you learn new information about a lead, or at natural pauses in the conversation, call the Lead Database Save/Update tool to save or update the lead record.\n\nHUMAN HANDOFF & APPOINTMENTS\nIf the customer asks to speak to a human, a counselor, or an advisor (in any language, e.g. \"I want to talk to a person\", \"ekjon consultant er sathe kotha bolte chai\"), switch into appointment mode:\n1. If you don't have the customer's name and phone number yet, ask for them.\n2. Ask which date they prefer, if not already given.\n3. Call the Appointment Availability Search tool to see which slots are genuinely AVAILABLE. NEVER invent or assume a time slot — only offer slots the tool actually returned.\n4. Show the customer the real available slots and let them choose.\n5. Once they choose, call the Appointment Availability Search tool again to re-confirm that slot is still AVAILABLE (someone else may have booked it in the meantime).\n6. If it is still available, call the Appointment Booking tool to book it. Only tell the customer their appointment is confirmed AFTER the booking tool call succeeds.\n7. If the slot was taken in the meantime, apologize, do not claim it is booked, and show the remaining available slots instead.\n8. After a successful booking (or a human handoff request), call the Staff Notification Email tool to notify the agency, and call the Lead Database Save/Update tool to save the appointment details on the lead record.\n\nFOLLOW-UP\nIf a qualified (WARM or HOT) customer does not book an appointment, set a next_follow_up_date (a few days out) and follow_up_status to \"Pending\" when saving the lead record, so staff can follow up later.\n\nHONESTY & SAFETY\nNever claim an appointment is booked unless the booking tool call actually succeeded. Never claim a scholarship or program exists unless a search tool confirmed it. If you are not sure, say so honestly and offer a human consultation.\n\nOUTPUT\nAlways reply to the customer in plain, natural, human-readable text. Never show JSON, tool names, internal IDs, lead scores, or system details to the customer.",
+          "maxIterations": 12,
+          "returnIntermediateSteps": false
+        }
+      }
+    },
+    {
+      "id": "580da702-810f-4c14-9fb4-57527657809b",
+      "name": "ERROR — Global Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1400,
+        1200
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "53ee1a95-5248-4895-845c-7ef12e893ee9",
+      "name": "ERROR — Build Log Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1140,
+        1200
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ed1d828-a4aa-428d-a8a5-99a750285b34",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "37e6dd15-6c6b-4fdf-9118-f2c41dcffa07",
+              "name": "workflow",
+              "type": "string",
+              "value": "={{ $json.workflow?.name }}"
+            },
+            {
+              "id": "1b57a963-a661-4579-b190-2eeee5b1ea77",
+              "name": "node",
+              "type": "string",
+              "value": "={{ $json.execution?.error?.node?.name || $json.execution?.lastNodeExecuted || 'Unknown' }}"
+            },
+            {
+              "id": "2b864919-dbb6-44cd-8a69-cfb222da5b53",
+              "name": "error_message",
+              "type": "string",
+              "value": "={{ $json.execution?.error?.message || 'Unknown error' }}"
+            },
+            {
+              "id": "59a77039-b320-4304-abdf-0b4643d99553",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $json.execution?.customData?.sessionId || '' }}"
+            },
+            {
+              "id": "a3149ce0-fb8e-4583-a564-6160754870f3",
+              "name": "lead_id",
+              "type": "string",
+              "value": "={{ $json.execution?.customData?.leadId || '' }}"
+            },
+            {
+              "id": "2692ad2a-04ad-477f-93fb-478f5ac1cc92",
+              "name": "severity",
+              "type": "string",
+              "value": "CRITICAL"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "baff7b7f-a6d0-4fc2-9651-ee9adc85abfe",
+      "name": "ERROR — Save to Error Log Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -880,
+        1200
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT: Spreadsheet to store the Error Log (can be the Lead spreadsheet)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "⚠️ SELECT/CREATE: 'Error Log' tab"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "workflow": "={{ $json.workflow }}",
+            "node": "={{ $json.node }}",
+            "error_message": "={{ $json.error_message }}",
+            "session_id": "={{ $json.session_id }}",
+            "lead_id": "={{ $json.lead_id }}",
+            "severity": "={{ $json.severity }}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "node",
+              "displayName": "node",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "error_message",
+              "displayName": "error_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "severity",
+              "displayName": "severity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "27758279-0fc1-43a9-8aee-b439abb79262",
+      "name": "ERROR — Check Severity",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -620,
+        1200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "CRITICAL",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7a853839-88f9-4fd0-99bc-40a57cee21f8",
+      "name": "ERROR — Notify Administrator",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -360,
+        1120
+      ],
+      "parameters": {
+        "fromEmail": "noreply@youragency.com",
+        "toEmail": "⚠️ REPLACE_WITH_ADMIN_EMAIL@example.com",
+        "subject": "={{ '🚨 Critical error in ' + $json.workflow }}",
+        "emailFormat": "text",
+        "text": "={{ 'Workflow: ' + $json.workflow + '\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nTime: ' + $json.timestamp + '\\nSession: ' + $json.session_id }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "id": "0826bfd4-5258-4447-98a1-71a81afb3777",
+      "name": "Sticky: ## 🚀 START HERE — What This Workflow Doe",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1700,
+        120
+      ],
+      "parameters": {
+        "content": "## 🚀 START HERE — What This Workflow Does\nThis is a complete AI receptionist for a study-abroad / travel consultancy.\nIt answers questions about countries, universities, scholarships & costs from\nYOUR spreadsheet, qualifies leads, books consultations, and notifies staff.\n\nIt talks to customers via n8n's built-in **Chat** trigger — click \"Chat\" at the\nbottom of the canvas (or use the public chat URL once activated) to test it.\n\nFollow the \"🚀 AFTER IMPORT\" note (bottom of canvas) for the exact setup order.\n",
+        "height": 300,
+        "width": 380,
+        "color": 4
+      }
+    },
+    {
+      "id": "82ccb92d-f8e8-4eeb-a4f0-a7614d7cc9be",
+      "name": "Sticky: ## 🔐 CREDENTIALS — SET THESE UP FIRST",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1700,
+        440
+      ],
+      "parameters": {
+        "content": "## 🔐 CREDENTIALS — SET THESE UP FIRST\nBefore testing, create/select these credentials in n8n:\n\n1. **OpenAI account** — used by the MODEL node. Go to the MODEL node → Credential →\n   create new → paste your OpenAI API key.\n2. **Google Sheets account (OAuth2)** — used by every node named \"TOOL — ... Search /\n   Save / Booking\". Click any one → Credential → Sign in with Google → allow access\n   to Google Sheets. You only need to do this once; then select the same credential\n   on the other Sheets nodes.\n3. **SMTP account** — used by \"TOOL — Staff Notification Email\" and\n   \"ERROR — Notify Administrator\". Enter your agency's outgoing email server details\n   (host, port, user, password). Gmail users: use an App Password, not your normal\n   Gmail password.\n\nNever paste API keys directly into prompts or Set nodes — always use n8n's\nCredentials system.\n",
+        "height": 380,
+        "width": 380,
+        "color": 4
+      }
+    },
+    {
+      "id": "9a012a7c-2ffa-4ad6-9fad-15b90e4c5ab5",
+      "name": "Sticky: ## 🤖 MODEL SETUP — RECOMMENDED",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        900
+      ],
+      "parameters": {
+        "content": "## 🤖 MODEL SETUP — RECOMMENDED\nModel used: **gpt-5.4-mini** (both for testing AND production).\n\nWhy:\n- Reliable instruction-following for customer chat\n- Handles tool-calling (Google Sheets, email) well\n- Much cheaper than a flagship model for everyday chat volume\n\nNote: OpenAI's older GPT-4.1 / GPT-4o family has been superseded by the GPT-5.x\nfamily, so this workflow defaults to the current recommended mini model instead.\n\nIf you want stronger reasoning for complex consultations later, just open the\nMODEL node and pick a different model from the dropdown (e.g. the full gpt-5.4)\n— no rebuilding required.\n",
+        "height": 320,
+        "width": 360,
+        "color": 3
+      }
+    },
+    {
+      "id": "54fbbb41-ffca-471a-8b18-b4bc331f1cf3",
+      "name": "Sticky: ## 🧠 AI AGENT — How it thinks",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        120
+      ],
+      "parameters": {
+        "content": "## 🧠 AI AGENT — How it thinks\nThis single Agent node is the whole \"brain\": it decides whether to answer\ndirectly, search a spreadsheet, save a lead, check appointments, book a slot,\nor email staff — by calling the tools connected below it.\n\nKept deliberately simple: ONE agent, natural-language replies to the customer,\nsmall structured fields only inside tool calls (never a giant JSON schema for\nnormal chat) — this avoids the \"model output doesn't fit format\" failures.\n\nRead the System Prompt (double-click the node → Options → System Message) to\nsee/adjust exactly how it behaves.\n",
+        "height": 260,
+        "width": 360,
+        "color": 3
+      }
+    },
+    {
+      "id": "b374b7a8-b1d2-4b71-a62f-e88c78a6087d",
+      "name": "Sticky: ## 📊 COUNTRY MASTER — CONNECT HERE",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        940
+      ],
+      "parameters": {
+        "content": "## 📊 COUNTRY MASTER — CONNECT HERE\nNode: \"TOOL — Country Master Search\"\n\n**What it does:** Reads all rows from your EXISTING Country Master spreadsheet\nso the AI can answer questions about countries, universities, tuition, living\ncosts, visas, etc. — using YOUR data only, never invented data.\n\n**Setup:**\n1. Open this node.\n2. Select your Google Sheets credential (see 🔐 CREDENTIALS note).\n3. Document → click the field → pick your existing Country Master spreadsheet\n   from the list.\n4. Sheet → pick the correct tab (e.g. \"Country Master\").\n5. Make sure row 1 of that tab contains column headers (Country, University,\n   Bachelor Tuition, etc. — see 📋 EXPECTED COLUMNS note). Columns don't all\n   need to exist; if one is missing the AI just won't mention that detail.\n\n**Test:** Click \"Execute step\" on this node — you should see your spreadsheet\nrows in the output panel.\n\n**If a customer asks about something not in your sheet:** the AI is instructed\nto say the information isn't verified yet and offer a human consultation —\nit will not invent an answer.\n",
+        "height": 480,
+        "width": 400,
+        "color": 6
+      }
+    },
+    {
+      "id": "88a98082-4663-4bb6-8681-c86ab01620e4",
+      "name": "Sticky: ## 🎓 UNIVERSITY DATABASE — CONNECT HERE",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        940
+      ],
+      "parameters": {
+        "content": "## 🎓 UNIVERSITY DATABASE — CONNECT HERE\nNode: \"TOOL — University Database Search\"\n\nIf your university details live in a SEPARATE tab/spreadsheet from Country\nMaster, connect it here (Document + Sheet fields, same steps as the Country\nMaster note). If everything is already in ONE sheet, just point this node at\nthe SAME spreadsheet + same tab as \"TOOL — Country Master Search\" — the AI\nwill still work correctly, it just searches the same data twice under two\ntool names.\n\nExpected useful columns: University, Programs, Rankings, Part-Time Work,\nPost-Study Work, Job Information — only if you have them.\n",
+        "height": 340,
+        "width": 360,
+        "color": 6
+      }
+    },
+    {
+      "id": "6f06997d-6cc5-482d-9cfd-e38c59992e11",
+      "name": "Sticky: ## 💰 SCHOLARSHIP DATABASE — CONNECT HERE",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        940
+      ],
+      "parameters": {
+        "content": "## 💰 SCHOLARSHIP DATABASE — CONNECT HERE\nNode: \"TOOL — Scholarship Database Search\"\n\nSame idea: point this at a dedicated \"Scholarship Master\" tab if you have one,\nor the same Country Master sheet if scholarship info is mixed in with the rest.\n\nExpected useful columns: Scholarship, Scholarship Amount, Scholarship\nEligibility, Deadline. The AI will never claim a scholarship exists unless\nthis tool actually returns it.\n",
+        "height": 300,
+        "width": 340,
+        "color": 6
+      }
+    },
+    {
+      "id": "342050e2-8648-42ae-85f9-c2706fa4092a",
+      "name": "Sticky: ## 📋 EXPECTED COUNTRY MASTER COLUMNS",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        1440
+      ],
+      "parameters": {
+        "content": "## 📋 EXPECTED COUNTRY MASTER COLUMNS\nYour existing spreadsheet may use different column names — that's fine, the\ntools read ALL columns and let the AI figure out what's relevant. Useful\ncolumn examples:\n\nCountry · University · Degree Level · Program · Bachelor Tuition ·\nMaster Tuition · PhD Tuition · Application Fee · Living Cost ·\nAccommodation Cost · Visa Cost · Insurance · Financial Proof · Scholarship ·\nScholarship Amount · Scholarship Eligibility · IELTS Requirement ·\nAcademic Requirement · Intake · Deadline · Course Duration ·\nPart Time Work · Post Study Work · Job Information · Embassy Information ·\nRequired Documents · Notes\n\nNot every column needs to exist. Missing data = the AI says it's unavailable,\nit never invents it.\n",
+        "height": 380,
+        "width": 420,
+        "color": 5
+      }
+    },
+    {
+      "id": "641c21b3-ede1-4b70-bcb1-cdb1a9f07fc1",
+      "name": "Sticky: ## 📅 APPOINTMENT AVAILABILITY — STEP-BY-",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        940
+      ],
+      "parameters": {
+        "content": "## 📅 APPOINTMENT AVAILABILITY — STEP-BY-STEP SETUP\nNode: \"TOOL — Appointment Availability Search\"  (+ \"TOOL — Appointment Booking\")\n\n**Create a spreadsheet tab called \"Appointments\" with these EXACT headers:**\nDate | Time | Consultant | Status | Customer Name | Customer Phone |\nCustomer Email | Purpose | Notes\n\n**Status must be one of:** AVAILABLE / BOOKED / BLOCKED\n\n**Setup:**\n1. Open \"TOOL — Appointment Availability Search\" → select your Google Sheets\n   credential → pick your spreadsheet → pick the \"Appointments\" tab.\n2. Open \"TOOL — Appointment Booking (Update Slot)\" → point it at the SAME\n   spreadsheet + SAME tab.\n3. Pre-fill some rows with Status = AVAILABLE for staff to offer.\n\n**How it works:** the AI only ever offers rows where Status = AVAILABLE (never\ninvents a time). When a customer picks a slot, the AI re-checks availability,\nthen updates that row's Status to BOOKED and fills in the customer's details —\nmatching on Date + Time + Consultant, so it always updates the correct row and\ncan never double-book an already-BOOKED slot.\n\n**Test:** Add a test row with Status=AVAILABLE, then ask the chatbot \"what\ntimes are available on [that date]?\" and confirm it only lists that row.\n",
+        "height": 520,
+        "width": 420,
+        "color": 6
+      }
+    },
+    {
+      "id": "8ea0e381-cb77-473a-b4b0-b89cf00316a8",
+      "name": "Sticky: ## 🌙 DAILY AGENCY STAFF PROCESS",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        1500
+      ],
+      "parameters": {
+        "content": "## 🌙 DAILY AGENCY STAFF PROCESS\nEvery evening (or as needed), your staff opens the \"Appointments\" spreadsheet\nand updates the Status column directly:\n\nDate        | Time  | Consultant | Status\n2026-08-21  | 11:00 | Rahim      | AVAILABLE\n2026-08-21  | 14:30 | Rahim      | AVAILABLE\n2026-08-21  | 17:00 | Karim      | BLOCKED\n\nThe chatbot always reads this live — you never need to touch the workflow\nitself to change availability, just edit the spreadsheet.\n",
+        "height": 260,
+        "width": 360,
+        "color": 5
+      }
+    },
+    {
+      "id": "ac729798-f8bc-4fe7-9c69-5081058c853a",
+      "name": "Sticky: ## 👤 LEAD DATABASE — STEP-BY-STEP SETUP",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        640,
+        940
+      ],
+      "parameters": {
+        "content": "## 👤 LEAD DATABASE — STEP-BY-STEP SETUP\nNode: \"TOOL — Lead Database Save/Update\"\n\n**Create a spreadsheet tab called \"Leads\" with these EXACT headers (in this\norder is not required, just the names):**\nlead_id, timestamp, name, phone, email, interested_country,\ninterested_university, degree_level, program, education, gpa, ielts, budget,\npreferred_intake, scholarship_interest, lead_source, conversation_summary,\nlead_score, lead_temperature, lead_status, next_action, appointment_date,\nappointment_time, next_follow_up_date, follow_up_status\n\n**Setup:**\n1. Open this node → select your Google Sheets credential → pick your\n   spreadsheet → pick the \"Leads\" tab.\n2. The node matches existing leads by the \"phone\" column — if a returning\n   customer's phone number is already in the sheet, it UPDATES that row\n   instead of creating a duplicate; otherwise it appends a new row.\n\n**Test:** Chat \"Germany te masters korte chai, amar phone 01700000000\" and\nthen check the Leads tab for a new row.\n",
+        "height": 460,
+        "width": 400,
+        "color": 6
+      }
+    },
+    {
+      "id": "87c47755-f7fd-4113-a006-e304ab83ac3d",
+      "name": "Sticky: ## 📧 STAFF NOTIFICATION — SETUP",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        940
+      ],
+      "parameters": {
+        "content": "## 📧 STAFF NOTIFICATION — SETUP\nNode: \"TOOL — Staff Notification Email\"\n\nSends an email to your CONFIG - Agency Settings → admin_email whenever the AI\ndecides staff should know (new booking, human handoff request, hot lead, etc).\n\n**Setup:**\n1. Connect your SMTP credential on this node (see 🔐 CREDENTIALS note).\n2. Open \"CONFIG - Agency Settings\" and set agency_email + admin_email to your\n   real addresses.\n\n**Test:** Ask the chatbot \"I want to talk to a human\" and check that the admin\ninbox receives an email after the conversation continues.\n",
+        "height": 320,
+        "width": 340,
+        "color": 6
+      }
+    },
+    {
+      "id": "c2b987ef-5880-4346-9d2c-418bf76e23d8",
+      "name": "Sticky: ## 🔁 FOLLOW-UP",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        640,
+        1480
+      ],
+      "parameters": {
+        "content": "## 🔁 FOLLOW-UP\nThere's no separate follow-up \"sending\" branch built here (no SMS/WhatsApp\ncredentials were requested), to keep the workflow simple and avoid sending\nmessages without configured credentials.\n\nInstead, when a WARM/HOT lead doesn't book, the AI Agent sets\n`next_follow_up_date` and `follow_up_status = Pending` on that lead's row via\n\"TOOL — Lead Database Save/Update\". Your staff (or a separate scheduled\nworkflow you build later) can read the Leads sheet for any row where\nfollow_up_status = Pending and next_follow_up_date has arrived, then reach out\nby phone, email, or WhatsApp.\n",
+        "height": 300,
+        "width": 380,
+        "color": 5
+      }
+    },
+    {
+      "id": "6888528e-d07e-445b-a708-040af1b23f43",
+      "name": "Sticky: ## 🚨 ERROR HANDLING — WHAT TO CHECK",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1400,
+        900
+      ],
+      "parameters": {
+        "content": "## 🚨 ERROR HANDLING — WHAT TO CHECK\nThis lower branch runs automatically whenever ANY node in this workflow throws\nan error (n8n's built-in Error Trigger). It logs the failure and can email you.\n\n**To activate it:** open Workflow Settings (⋯ menu, top right) → \"Error\nWorkflow\" → select THIS workflow. This tells n8n to send failures here.\n\n**What each node does:**\n- ERROR — Global Error Trigger: fires automatically on any failure.\n- ERROR — Build Log Entry: extracts timestamp, workflow, failing node, and\n  error message.\n- ERROR — Save to Error Log Sheet: appends that info to an \"Error Log\" tab\n  (create this tab in any spreadsheet you like, e.g. your Lead spreadsheet).\n- ERROR — Check Severity: currently treats every error as CRITICAL — edit the\n  \"severity\" value in \"ERROR — Build Log Entry\" if you want finer control.\n- ERROR — Notify Administrator: emails the admin address you set directly in\n  this node (replace the placeholder email!).\n\n**Common failure causes to check first:** expired Google/OpenAI credential,\nwrong spreadsheet/tab selected, spreadsheet headers renamed, SMTP login\nrejected, or the AI hitting Max Iterations (raise it in AI Agent → Options).\n",
+        "height": 480,
+        "width": 400,
+        "color": 2
+      }
+    },
+    {
+      "id": "9aeebf7f-3b5d-4311-8510-9a27c49cae75",
+      "name": "Sticky: ## 🧪 TEST CASES — RUN THESE AFTER SETUP",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        1440
+      ],
+      "parameters": {
+        "content": "## 🧪 TEST CASES — RUN THESE AFTER SETUP\n1. \"Hi\" → friendly receptionist greeting.\n2. \"Germany te Masters korte chai.\" → understands Banglish, asks only 1-2\n   necessary follow-up questions, doesn't repeat itself later.\n3. \"China te Bachelor korte koto taka lagbe?\" → searches Country Master.\n4. \"UK te scholarship ache?\" → searches Scholarship Database.\n5. Ask about a country/program NOT in your sheet → AI says info isn't\n   verified yet, offers a consultation — does NOT invent an answer.\n6. \"Amar ekjon consultant er sathe kotha bolte chai.\" → human handoff flow\n   starts (asks for contact info / date if missing).\n7. \"I want to speak with a human.\" → same handoff flow in English.\n8. Ask for available appointment times on a date with AVAILABLE rows → AI\n   lists only the real available slots.\n9. Book one of those slots → status becomes BOOKED in the sheet, staff email\n   sent, AI confirms only after the sheet update succeeds.\n10. Try to book the SAME slot again from a second chat → AI says it's no\n    longer available and offers other slots (no double booking).\n11. \"Amar budget 8 lakh taka.\" → AI remembers this for the rest of the chat.\n12. Switch languages mid-conversation (English → Bangla → Banglish) → AI\n    follows the customer's language each time.\n13. Temporarily rename your OpenAI credential to something invalid → confirm\n    the Error Handling branch logs it (if Error Workflow is configured).\n",
+        "height": 560,
+        "width": 400,
+        "color": 7
+      }
+    },
+    {
+      "id": "771994ce-6b1a-43e7-bfce-5826b5a64e1e",
+      "name": "Sticky: ## 🚀 AFTER IMPORT — DO THESE STEPS IN OR",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1700,
+        1200
+      ],
+      "parameters": {
+        "content": "## 🚀 AFTER IMPORT — DO THESE STEPS IN ORDER\n1. Import this JSON into n8n.\n2. Set up credentials: OpenAI account, Google Sheets account (OAuth2), SMTP\n   account (🔐 CREDENTIALS note has details).\n3. Open \"MODEL — OpenAI GPT-5.4-mini\" → attach your OpenAI credential.\n4. Open \"CONFIG - Agency Settings\" → fill in your real agency_name,\n   agency_email, admin_email, timezone.\n5. Open each \"TOOL — ...\" Google Sheets node → attach your Google Sheets\n   credential → select your spreadsheet → select the correct tab (see the\n   relevant 📊/🎓/💰/📅/👤 sticky note for exact expected columns).\n6. Open \"TOOL — Staff Notification Email\" and \"ERROR — Notify Administrator\"\n   → attach your SMTP credential → replace the placeholder admin email in\n   \"ERROR — Notify Administrator\" with your real one.\n7. Optional: Workflow Settings → Error Workflow → select this workflow (see\n   🚨 ERROR HANDLING note).\n8. Save the workflow.\n9. Click \"Chat\" at the bottom of the canvas and run the 🧪 TEST CASES above.\n10. Once everything passes, toggle the workflow to Active in the top-right.\n",
+        "height": 480,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "START — Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "CONFIG - Agency Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONFIG - Agency Settings": {
+      "main": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MODEL — OpenAI GPT-5.4-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MEMORY — Conversation Buffer": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TOOL — Country Master Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TOOL — University Database Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TOOL — Scholarship Database Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TOOL — Appointment Availability Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TOOL — Appointment Booking (Update Slot)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TOOL — Lead Database Save/Update": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TOOL — Staff Notification Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI — Receptionist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERROR — Global Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "ERROR — Build Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERROR — Build Log Entry": {
+      "main": [
+        [
+          {
+            "node": "ERROR — Save to Error Log Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERROR — Save to Error Log Sheet": {
+      "main": [
+        [
+          {
+            "node": "ERROR — Check Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERROR — Check Severity": {
+      "main": [
+        [
+          {
+            "node": "ERROR — Notify Administrator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": "agency-chatbot-workflow"
+  }
+}
