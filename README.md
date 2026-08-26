@@ -58,9 +58,3 @@ Set the agency name and staff notification email in the workflow's configuration
 Test greeting, country/university questions, scholarships, costs, Bangla/Banglish/English conversations, human handoff, appointment availability, appointment booking, lead creation/update and staff notifications.
 
 Only activate the workflow after the tests pass.
-
-## Important
-
-The spreadsheet/database should be treated as the source of truth for agency-specific education and study-abroad information. The chatbot must not invent tuition, scholarship, visa, university, embassy or financial information that is not available in the connected data source.
-
-Never commit real customer data, API keys, OAuth tokens, passwords or other secrets to this repository.
